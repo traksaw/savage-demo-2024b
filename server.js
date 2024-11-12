@@ -15,6 +15,7 @@ app.listen(3000, () => {
         }
         db = client.db(dbName);
         console.log("Connected to `" + dbName + "`!");
+        // console.log(db);
     });
 });
 
@@ -24,7 +25,7 @@ app.use(bodyParser.json())
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  db.collection('messages').find().toArray((err, result) => {
+  db.collection('messages').find().sort({thumbUp: -1}).toArray((err, result) => {
     if (err) return console.log(err)
     res.render('index.ejs', {messages: result})
   })
@@ -42,7 +43,7 @@ app.put('/messages', (req, res) => {
   db.collection('messages')
   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
     $set: {
-      thumbUp:req.body.thumbUp + 1
+      thumbUp: req.body.thumbUp != undefined ? req.body.thumbUp + 1 : req.body.thumbDown - 1
     }
   }, {
     sort: {_id: -1},
